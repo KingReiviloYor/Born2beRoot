@@ -22,19 +22,16 @@ disk_used=$(df -h --total | awk 'END {print $3}')
 disk_total=$(df -h --total | awk 'END {print $2}')
 disk_percent=$(df -h --total | awk 'END {print $5}')
 #
-# CPU Load
-load=$(top -bn 1 | grep ^%Cpu | awk '{print $7}' | cut -c4- | awk '{printf("%.1f%%", (100-$1)/100)}')
+# CPU Load. Basically works using the user processes ($2), the system processes ($4) and the idle time ($5).
+# This command represents the overall usage on all cores since bootup. The top command is more accurate
+# to get the current cpu.
+load=$(grep '^cpu' /proc/stat | awk 'END {printf("%.1f%%", ($2+$4)*100/($2+$4+$5))}')
 #
 # Date and time of last boot. The who command displays who is currently logged in.
 last_boot=$(who -b | awk '{print $3, $4}')
 #
 # LVM Status. If there's at least one lvm, output 1. Another way to do it is with the lsblk command.
-if [[ $(cat /etc/fstab | grep '^/dev/mapper/') ]]
-then
-	lvm=1
-else
-	lvm=0
-fi
+lvm=$(if [[ $(cat /etc/fstab | grep '^/dev/mapper/') ]]; then echo yes; else echo no; fi)
 #
 # Number of TCP connections established
 tcp=$(ss -s | grep '^TCP' | head -1 | awk '{print $4}')
@@ -58,7 +55,7 @@ echo "#CPU physical: ${cpu}"
 echo "#vCPU: ${vcpu}"
 echo "#Memory Usage: ${mem_used}/${mem_total}MB (${mem_percent}%)"
 echo "#Disk Usage: ${disk_used}/${disk_total} (${disk_percent})"
-#echo #CPU load: ${load}"
+echo "#CPU load: ${load}"
 echo "#Last boot: ${last_boot}"
 echo "#LVM use: ${lvm}"
 echo "#Connexions TCP: ${tcp::-1} ESTABLISHED"
