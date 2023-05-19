@@ -13,8 +13,8 @@ vcpu=$(lscpu | grep '^CPU(s)' | awk '{print $2}')
 # Memory Usage (RAM). The free command displays the amount of free and used memory in the system.
 # -m refers to mebibyte (1024 KiB), which is in the binary system. --mega equals 1000 KB.
 mem_used=$(free -m | awk 'NR==2 {print $3}')
-mem_total=$(free -m | awk 'NR==2 {print $2}')
-mem_percent=$(free -m | awk 'NR==2 {printf("%.2f", $3/$2*100)}')
+mem_total=$(free -m | awk 'NR==2 {print $2"MB"}')
+mem_percent=$(free -m | awk 'NR==2 {printf("%.2f%%", $3/$2*100)}')
 #
 # Disk Space Available. -h means human-readable and displays sizes in power of 1024,
 # in contrast to -H which displays them in powers of 1000.
@@ -53,7 +53,7 @@ sudo_count=$(cat /var/log/sudo/sudo.log | grep -c 'COMMAND')
 echo "#Architecture: ${architecture}"
 echo "#CPU physical: ${cpu}"
 echo "#vCPU: ${vcpu}"
-echo "#Memory Usage: ${mem_used}/${mem_total}MB (${mem_percent}%)"
+echo "#Memory Usage: ${mem_used}/${mem_total} (${mem_percent})"
 echo "#Disk Usage: ${disk_used}/${disk_total} (${disk_percent})"
 echo "#CPU load: ${load}"
 echo "#Last boot: ${last_boot}"
